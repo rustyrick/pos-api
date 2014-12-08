@@ -1,8 +1,7 @@
 package it.novellis.pos.api;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 
 /**
@@ -26,7 +25,7 @@ public class Terminal {
 	 */
 	public Terminal()
 	{
-		_productList = new Hashtable<Character, ProductType>();
+		_productList = new HashMap<Character, ProductType>();
 		logger.getParent().getHandlers()[0].setFormatter(new MyLogFormatter());
 	}
 	
