@@ -7,13 +7,12 @@ import java.util.logging.Logger;
 /**
  * Class representing the top level POS terminal service.
  * Instances of this class define a map of products/prices and keep track of the products in a shopping cart,
- * with their correspondent, to simply calculate the total amount due, even in case of volume discounts.
+ * in order to simply calculate the total amount due, even in case of volume discounts.
  * 
  * @author francesco.novellis
  *
  */
 public class Terminal {
-	
 	private final static Logger logger = Logger.getLogger(Terminal.class.getName());
 	private Map<String, ProductType> _productList = null;
 	
@@ -25,28 +24,39 @@ public class Terminal {
 	 */
 	public Terminal() {
 		_productList = new HashMap<String, ProductType>();
-		logger.getParent().getHandlers()[0].setFormatter(new MyLogFormatter());
 	}
 	
 	/**
-	 * Thread-safe public method to define the unit/lot prices of a specific product type.
+	 * Thread-safe public method to define the unit/lot prices and lot quantity 
+	 * for volume discount of a specific product type.
 	 * 
 	 * @param iCode, String value to identify the product type
 	 * @param iUnitPrice, double value indicating the unit price of the product
 	 * @param iLotPrice, double value indicating the lot price of the product
-	 * @param iLotQuantity, int value indicating the amount of items needed for the volume discount
+	 * @param iLotQuantity, int value indicating the number of items needed for the volume discount
+	 * @throws IllegalArgumentException, if unit or lot price are negative or lot quantity is not positive
 	 */
-	public synchronized void setPricing(String iCode, double iUnitPrice, double iLotPrice, int iLotQuantity) {
-		if(!_productList.containsKey(iCode)) {
-			_productList.put(iCode, new ProductType(iCode, iUnitPrice, iLotPrice, iLotQuantity));
-			
-			StringBuilder logmsg = new StringBuilder();
-			logmsg.append("Adding product type ")
-				.append(iCode).append(" - unit price: ").append(iUnitPrice)
-				.append(", lot price: ").append(iLotPrice).append(" for ")
-				.append(iLotQuantity).append(" items)");
-			logger.info(logmsg.toString());
+	public synchronized void setPricing(String iCode, double iUnitPrice, double iLotPrice, int iLotQuantity) throws IllegalArgumentException {
+		if(iUnitPrice < 0.0) {
+			throw new IllegalArgumentException("Negative unit price!");
 		}
+		
+		if(iLotPrice < 0.0) {
+			throw new IllegalArgumentException("Negative lot price!");
+		}
+		
+		if(iLotQuantity <= 0) {
+			throw new IllegalArgumentException("Non-positive lot quantity!");
+		}
+
+		_productList.put(iCode, new ProductType(iCode, iUnitPrice, iLotPrice, iLotQuantity));
+		
+		StringBuilder logmsg = new StringBuilder();
+		logmsg.append("Adding product type ")
+			.append(iCode).append(" - unit price: ").append(iUnitPrice)
+			.append(", lot price: ").append(iLotPrice).append(" for ")
+			.append(iLotQuantity).append(" items)");
+		logger.info(logmsg.toString());
 	}
 	
 	/**
@@ -57,13 +67,15 @@ public class Terminal {
 	 */
 	public synchronized boolean scan(String iCode) {
 		StringBuilder logmsg = new StringBuilder();
-		try {
-			_productList.get(iCode).addItem();
+		
+		ProductType aProduct = _productList.get(iCode);
+		if(aProduct != null) {
+			aProduct.addItem();
 			logmsg.append("Adding an item of type ").append(iCode).append(" to the shopping cart.");
 			logger.info(logmsg.toString());
 			return true;
 		}
-		catch(NullPointerException e) {
+		else {
 			logmsg.append("Product type ").append(iCode).append(" not found!");
 			logger.warning(logmsg.toString());
 			return false;
@@ -100,14 +112,5 @@ public class Terminal {
 		logger.info(logmsg.toString());
 		
 		return total;
-	}
-	
-	/**
-	 * Thread-safe public method which returns a formatted String representing the total amount due with exactly 2 decimals.
-	 * 
-	 * @return a String value, as the formatted amount due with 2 decimals.
-	 */
-	public synchronized String formattedTotal() {
-		return String.format("%1.2f", calculateTotal());
 	}
 }

@@ -33,10 +33,8 @@ public class TestTerminal {
     	    char c = shoppingCart.charAt(i);
     	    terminal.scan(String.valueOf(c));
     	}
-    	
-    	double result = terminal.calculateTotal();
-    	
-        assertEquals(result, 32.40, 0.0);
+
+        assertEquals(terminal.calculateTotal(), 32.40, 0.0);
     }
     
     @Test
@@ -46,10 +44,8 @@ public class TestTerminal {
     	for (String aItem : shoppingCart.getShoppingItems()) {
     	    terminal.scan(aItem);
     	}
-    	
-    	double result = terminal.calculateTotal();
-    	
-        assertEquals(result, 7.25, 0.0);
+
+        assertEquals(terminal.calculateTotal(), 7.25, 0.0);
     }
     
     @Test
@@ -59,10 +55,17 @@ public class TestTerminal {
     	for (String aItem : shoppingCart.getShoppingItems()) {
     	    terminal.scan(aItem);
     	}
+
+        assertEquals(terminal.calculateTotal(), 15.40, 0.0);
+    }
+    
+    @Test
+    public void testTerminalSetPricing() {
+    	terminal.scan("A");
+    	assertEquals("One A element in shopping cart for 2.00 - total amount should be 2.0", 0.0, terminal.calculateTotal(), 2.0);
     	
-    	double result = terminal.calculateTotal();
-    	
-        assertEquals(result, 15.40, 0.0);
+    	terminal.setPricing("A", 3.00, 7.00, 4);
+    	assertEquals("One A element in shopping cart for 3.00 - total amount should be 2.0", 0.0, terminal.calculateTotal(), 3.0);
     }
     
     @Test
@@ -71,32 +74,28 @@ public class TestTerminal {
     	assertEquals("No element in the shopping cart - total amount should be 0.0", 0.0, terminal.calculateTotal(), 0.0);
     }
     
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testTerminalNegativeUnitPrice() {
     	terminal.reset();
     	terminal.setPricing("Z", -1.0, 2.0, 1);
-    	assertEquals("Negative unit price, exception caught - total amount should be 0.0", 0.0, terminal.calculateTotal(), 0.0);
     }
     
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testTerminalNegativeLotPrice() {
     	terminal.reset();
     	terminal.setPricing("Z", 1.0, -2.0, 1);
-    	assertEquals("Negative lot price, exception caught - total amount should be 0.0", 0.0, terminal.calculateTotal(), 0.0);	
     }
     
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testTerminalNegativeLotQuantity() {
     	terminal.reset();
     	terminal.setPricing("Z", 1.0, 2.0, -1);
-    	assertEquals("Negative lot quantity, exception caught - total amount should be 0.0", 0.0, terminal.calculateTotal(), 0.0);
     }
     
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testTerminalNullLotQuantity() {
     	terminal.reset();
     	terminal.setPricing("Z", 1.0, 2.0, 0);
-    	assertEquals("Null lot quantity, exception caught - total amount should be 0.0", 0.0, terminal.calculateTotal(), 0.0);
     }
     
     @Test

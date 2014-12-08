@@ -5,12 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Class representing a shopping cart, used in tests.
+ * Package-private class representing a shopping cart, used only in tests to
+ * facilitate the parsing of the input data.
  * 
  * @author francesco.novellis
  *
  */
-public class ShoppingCart {
+class ShoppingCart {
 	private List<String> _shoppingItems = null;
 	
 	/**
@@ -21,7 +22,7 @@ public class ShoppingCart {
 	 * @param iItems
 	 * @param iSeparator
 	 */
-	public ShoppingCart(String iItems, String iSeparator) {
+	ShoppingCart(String iItems, String iSeparator) {
 		_shoppingItems = new ArrayList<String>();
 		
 		if(!iSeparator.isEmpty()) {
@@ -36,13 +37,12 @@ public class ShoppingCart {
 	}
 	
 	/**
-	 * Returns the string list representing the items in the shopping cart.
+	 * Package-private method which returns the string list representing the items in the shopping cart.
 	 * 
 	 * @return the string list of the items in the shopping cart
 	 */
-	public List<String> getShoppingItems()
+	List<String> getShoppingItems()
 	{
 		return _shoppingItems;
 	}
-
 }
